@@ -625,7 +625,7 @@ namespace Microsoft.Azure.Kinect.Sensor
         /// For safe buffer access <see cref="Memory"/>.
         /// </remarks>
         /// <returns>A pointer to the native buffer.</returns>
-        internal unsafe void* GetUnsafeBuffer()
+        public unsafe void* GetUnsafeBuffer()
         {
             if (this.buffer != IntPtr.Zero)
             {
@@ -657,7 +657,7 @@ namespace Microsoft.Azure.Kinect.Sensor
         /// <summary>
         /// Flush the managed cache of native memory to the native buffer.
         /// </summary>
-        internal void FlushMemory()
+        public void FlushMemory()
         {
             lock (this)
             {

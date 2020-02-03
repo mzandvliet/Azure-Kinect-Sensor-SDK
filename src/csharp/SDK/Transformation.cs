@@ -143,6 +143,76 @@ namespace Microsoft.Azure.Kinect.Sensor
         }
 
         /// <summary>
+        /// Transforms an Image from the depth camera perspective to the color camera perspective.
+        /// </summary>
+        /// <param name="depth">Depth image to transform.</param>
+        /// <param name="custom">Custom image to transform along with depth.</param>
+        /// <param name="transformedDepth">An Image to hold the output.</param>
+        /// <param name="transformedCustom">An Image to hold the custom output.</param>
+        /// <remarks>
+        /// The <paramref name="transformedDepth"/> Image must be of the resolution of the color camera, and
+        /// of the pixel format of the depth image.
+        /// The <paramref name="transformedCustom"/> Image must be of the resolution of the color camera, and
+        /// of the pixel format of the custom image.
+        /// </remarks>
+        public void DepthImageToColorCameraCustom(Image depth, Image custom, Image transformedDepth, Image transformedCustom)
+        {
+            if (depth == null)
+            {
+                throw new ArgumentNullException(nameof(depth));
+            }
+
+            if (custom == null)
+            {
+                throw new ArgumentNullException(nameof(custom));
+            }
+
+
+            if (transformedDepth == null)
+            {
+                throw new ArgumentNullException(nameof(transformedDepth));
+            }
+
+            if (transformedCustom == null)
+            {
+                throw new ArgumentNullException(nameof(transformedCustom));
+            }
+
+            lock (this)
+            {
+                if (this.disposedValue)
+                {
+                    throw new ObjectDisposedException(nameof(Transformation));
+                }
+
+                // Create a new reference to the Image objects so that they cannot be disposed while
+                // we are performing the transformation
+                using (Image depthReference = depth.Reference())
+                using (Image customReference = custom.Reference())
+                using (Image transformedDepthReference = transformedDepth.Reference())
+                using (Image transformedCustomReference = transformedCustom.Reference())
+                {
+                    // Ensure changes made to the managed memory are visible to the native layer
+                    depthReference.FlushMemory();
+                    customReference.FlushMemory();
+
+                    AzureKinectException.ThrowIfNotSuccess(() => NativeMethods.k4a_transformation_depth_image_to_color_camera_custom(
+                        this.handle,
+                        depthReference.DangerousGetHandle(),
+                        customReference.DangerousGetHandle(),
+                        transformedDepthReference.DangerousGetHandle(),
+                        transformedCustomReference.DangerousGetHandle(),
+                        NativeMethods.k4a_transformation_interpolation_type_t.K4A_TRANSFORMATION_INTERPOLATION_TYPE_LINEAR,
+                        0));
+
+                    // Copy the native memory back to managed memory if required
+                    transformedDepthReference.InvalidateMemory();
+                    transformedCustomReference.InvalidateMemory();
+                }
+            }
+        }
+
+        /// <summary>
         /// Transforms an Image from the color camera perspective to the depth camera perspective.
         /// </summary>
         /// <param name="capture">Capture containing depth and color images.</param>

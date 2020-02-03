@@ -59,6 +59,13 @@ namespace Microsoft.Azure.Kinect.Sensor
             K4A_STREAM_RESULT_EOF,
         }
 
+        [NativeReference]
+        public enum k4a_transformation_interpolation_type_t
+        {
+            K4A_TRANSFORMATION_INTERPOLATION_TYPE_NEAREST = 0,
+            K4A_TRANSFORMATION_INTERPOLATION_TYPE_LINEAR,
+        }
+
         [DllImport("k4a", CallingConvention = k4aCallingConvention)]
         [NativeReference]
         public static extern k4a_result_t k4a_set_allocator(
@@ -129,6 +136,17 @@ namespace Microsoft.Azure.Kinect.Sensor
             k4a_transformation_t transformation_handle,
             k4a_image_t depth_image,
             k4a_image_t transformed_depth_image);
+
+        [DllImport("k4a", CallingConvention = k4aCallingConvention)]
+        [NativeReference]
+        public static extern k4a_result_t k4a_transformation_depth_image_to_color_camera_custom(
+            k4a_transformation_t transformation_handle,
+            k4a_image_t depth_image,
+            k4a_image_t custom_image,
+            k4a_image_t transformed_depth_image,
+            k4a_image_t transformed_custom_image,
+            k4a_transformation_interpolation_type_t interpolation,
+            UInt32 invalid_custom_value);
 
         [DllImport("k4a", CallingConvention = k4aCallingConvention)]
         [NativeReference]
